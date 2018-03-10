@@ -22,7 +22,7 @@
 
     <developers>
         <developer>
-            <name>Michal PAwluk</name>
+            <name>Michal Pawluk</name>
             <email>mike@nekomatic.com</email>
             <organization>com.nekomatic</organization>
             <organizationUrl>https://github.com/nekomatic</organizationUrl>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>RELEASE</version>
+            <version>5.1.0</version>
         </dependency>
     </dependencies>
 
