@@ -27,6 +27,11 @@ package com.nekomatic.types
 
 import java.math.BigInteger
 
+/**
+ * Rational number
+ * @param [num] numerator
+ * @param [denom] denominator
+ */
 open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rational> {
     constructor(r: Rational) : this(r.numerator, r.denominatorPbi)
     constructor(r: BigInteger) : this(r, PositiveBigInt.ONE)
@@ -46,6 +51,9 @@ open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rationa
             getGcd(b, a % b)
     }
 
+    /**
+     * Positive BigInteger
+     */
     class PositiveBigInt(private val v: BigInteger) {
         companion object {
             val ONE = PositiveBigInt(BigInteger.ONE)
@@ -78,9 +86,10 @@ open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rationa
     val denominator = denom.value / gcd
     val denominatorPbi = Rational.PositiveBigInt(denominator)
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun signum() = numerator.signum()
     fun negate() = Rational(numerator.negate(), denominatorPbi)
-    fun bigIntPart() = if (numerator == BigInteger.ZERO) BigInteger.ZERO else numerator / denominator
+    fun bigIntPart():BigInteger = if (numerator == BigInteger.ZERO) BigInteger.ZERO else numerator / denominator
 
     fun inverse(): Option<Rational> {
         return when (numerator.signum()) {

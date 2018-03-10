@@ -34,6 +34,6 @@ internal class BigIntegerExtensionsKtTest {
     @Test
     @DisplayName("Decimal decimalMagnitude of zero BigInteger should be None. ")
     fun magnitudeOfZero() {
-        assert(BigInteger.ZERO.decimalMagnitude() is Option.None)
+        assert(BigInteger.ZERO.decimalMagnitude() === Option.None)
     }
 }

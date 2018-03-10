@@ -25,11 +25,17 @@
 
 package com.nekomatic.types
 
-
+/**
+ * Positive integer
+ */
 open class PositiveInt private constructor(val value: Int) {
 
     companion object {
-
+        @Suppress("MemberVisibilityCanBePrivate")
+                /**
+         * Creates instance of PositiveInt option from given [int]
+         * @return Option.Some<PositiveInt> if inpit is positive, overwise Option.None
+         */
         fun create(int: Int): Option<PositiveInt> = when {
             int > 0 -> Option.Some(PositiveInt(int))
             else -> Option.None
