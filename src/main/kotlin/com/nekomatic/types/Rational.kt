@@ -35,24 +35,21 @@ open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rationa
     companion object {
         val ZERO = Rational(BigInteger.ZERO)
         val ONE = Rational(BigInteger.ONE)
-        fun fromDecimalMag(toNumberValue: Int, size: Int): Rational {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
     }
 
-    private val gcd: BigInteger = getgcd(num, denom.value)
+    private val gcd: BigInteger = getGcd(num, denom.value)
 
-    private tailrec fun getgcd(a: BigInteger, b: BigInteger): BigInteger {
+    private tailrec fun getGcd(a: BigInteger, b: BigInteger): BigInteger {
         return if (b == BigInteger.ZERO)
             a
         else
-            getgcd(b, a % b)
+            getGcd(b, a % b)
     }
 
     class PositiveBigInt(private val v: BigInteger) {
         companion object {
             val ONE = PositiveBigInt(BigInteger.ONE)
-            val TEN = PositiveBigInt(BigInteger.TEN)
+            val P10 = PositiveBigInt(BigInteger.TEN)
             val P12 = PositiveBigInt(12.toBigInteger())
             val P15 = PositiveBigInt(15.toBigInteger())
             val P24 = PositiveBigInt(24.toBigInteger())
@@ -61,16 +58,16 @@ open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rationa
             val P100 = PositiveBigInt(100.toBigInteger())
             val P1000 = PositiveBigInt(1000.toBigInteger())
             val P1001 = PositiveBigInt(1001.toBigInteger())
+
+            fun create(bigint: BigInteger): Option<PositiveBigInt> =
+                    when (bigint.signum()) {
+                        1 -> Option.Some(PositiveBigInt(bigint))
+                        else -> Option.None
+                    }
         }
 
         val value: BigInteger
             get() = v
-
-        fun create(bigint: BigInteger): Option<PositiveBigInt> =
-                when (bigint.signum()) {
-                    1 -> Option.Some(PositiveBigInt(bigint))
-                    else -> Option.None
-                }
 
         operator fun times(second: PositiveBigInt): PositiveBigInt = PositiveBigInt(this.value * second.value)
         operator fun plus(second: PositiveBigInt): PositiveBigInt = PositiveBigInt(this.value + second.value)

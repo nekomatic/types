@@ -25,14 +25,18 @@
 package com.nekomatic.types
 
 import java.math.BigInteger
-//potentially not necessary
-fun BigInteger.magnitude(): Int {
-    //not the most efficient way of getting magnitude but log10 tends to use floats in many languages which introduces errors....
+
+fun BigInteger.decimalMagnitude(): Option<Int> {
+    //not the most efficient way of getting decimalMagnitude but log10 tends to use floats in many languages which introduces errors....
     tailrec fun m(num: BigInteger, mag: Int = 0): Int {
         return if (num < BigInteger.TEN)
             mag
         else
             m(num / BigInteger.TEN, mag + 1)
     }
-    return m(this.abs())
+    return when (this) {
+        BigInteger.ZERO -> Option.None
+        else -> Option.Some(m(this.abs()))
+    }
+
 }

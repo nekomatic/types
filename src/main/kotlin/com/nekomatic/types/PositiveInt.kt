@@ -26,8 +26,6 @@
 package com.nekomatic.types
 
 
-import com.nekomatic.types.Option
-
 open class PositiveInt private constructor(val value: Int) {
 
     companion object {

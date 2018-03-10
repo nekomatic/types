@@ -30,28 +30,28 @@ sealed class Option<out T : Any> {
     data class Some<out T : Any>(val value: T) : Option<T>()
 }
 
-/// f: (T) -> B
+// f: (T) -> B
 inline infix fun <T : Any, B : Any> Option<T>.map(f: (T) -> B): Option<B> =
         when (this) {
             is Option.None -> Option.None
             is Option.Some -> Option.Some(f(this.value))
         }
 
-//f: (T,B) -> C
+// f: (T,B) -> C
 inline fun <T : Any, B : Any, C : Any> Option<T>.map(second: Option<B>, f: (T, B) -> C): Option<C> =
         when (second) {
             is Option.None -> Option.None
             is Option.Some -> this map { f(it, second.value) }
         }
 
-//f: (T) -> Option<B>
+// f: (T) -> Option<B>
 inline infix fun <T : Any, B : Any> Option<T>.mapToOption(f: (T) -> Option<B>): Option<B> =
         when (this) {
             is Option.None -> Option.None
             is Option.Some -> f(this.value)
         }
 
-//f: (T,B) -> Option<C>
+// f: (T,B) -> Option<C>
 inline fun <T : Any, B : Any, C : Any> Option<T>.mapToOption(second: Option<B>, f: (T, B) -> Option<C>): Option<C> =
         when (this) {
             is Option.None -> Option.None
