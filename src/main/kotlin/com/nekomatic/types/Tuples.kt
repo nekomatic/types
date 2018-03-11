@@ -169,8 +169,8 @@ fun <T01 : Any, T02 : Any, T03 : Any, T04 : Any, T05 : Any, T06 : Any, T07 : Any
 fun <T01 : Any, T02 : Any, T03 : Any, T04 : Any, T05 : Any, T06 : Any, T07 : Any, T08 : Any, T09 : Any, T10 : Any, T11 : Any, T12 : Any, T13 : Any, T14 : Any, T15 : Any, T16 : Any, T17 : Any, T18 : Any, T19 : Any, T20 : Any, T21 : Any, T22 : Any, T23 : Any, T24 : Any> Tuple24<T01, T02, T03, T04, T05, T06, T07, T08, T09, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24>.tail() = Pair(this.item24, Tuple23(this.item01, this.item02, this.item03, this.item04, this.item05, this.item06, this.item07, this.item08, this.item09, this.item10, this.item11, this.item12, this.item13, this.item14, this.item15, this.item16, this.item17, this.item18, this.item19, this.item20, this.item21, this.item22, this.item23))
 
 
-fun <T01 : Any, T02 : Any> Tuple02<T01, T02>.flatten() = this
-fun <T01 : Any, T02 : Any, T03 : Any> Tuple02<Tuple02<T01, T02>, T03>.flatten() = this.item01.flatten() + this.item02
+//fun <T01 : Any, T02 : Any> Tuple02<T01, T02>.flatten() = this
+fun <T01 : Any, T02 : Any, T03 : Any> Tuple02<Tuple02<T01, T02>, T03>.flatten() = this.item01 + this.item02
 fun <T01 : Any, T02 : Any, T03 : Any, T04 : Any> Tuple02<Tuple02<Tuple02<T01, T02>, T03>, T04>.flatten() = this.item01.flatten() + this.item02
 fun <T01 : Any, T02 : Any, T03 : Any, T04 : Any, T05 : Any> Tuple02<Tuple02<Tuple02<Tuple02<T01, T02>, T03>, T04>, T05>.flatten() = this.item01.flatten() + this.item02
 fun <T01 : Any, T02 : Any, T03 : Any, T04 : Any, T05 : Any, T06 : Any> Tuple02<Tuple02<Tuple02<Tuple02<Tuple02<T01, T02>, T03>, T04>, T05>, T06>.flatten() = this.item01.flatten() + this.item02
