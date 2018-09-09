@@ -1,3 +1,10 @@
+/**
+ * @author nekomatic
+ */
+
+
+@file:Suppress("unused")
+
 package com.nekomatic.types
 
 sealed class Either<out T1 : Any, out T2 : Any> {

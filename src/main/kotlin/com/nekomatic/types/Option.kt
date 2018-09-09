@@ -20,43 +20,79 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ * @author nekomatic
  */
 
 package com.nekomatic.types
 
-//TODO: Create tests
+
+/**
+ * Functional [Option] of any non-nullable type [T]
+ */
 sealed class Option<out T : Any> {
+
+    /**
+     * @constructor Returns a singleton of untyped [None] option
+     */
     object None : Option<Nothing>()
+
+    /**
+     * @constructor Creates an instance of [Some] option of type [T]
+     */
     data class Some<out T : Any>(val value: T) : Option<T>()
 }
 
-// f: (T) -> B
-inline infix fun <T : Any, B : Any> Option<T>.map(f: (T) -> B): Option<B> =
+
+/**
+ * Converts option of type [A] into an option of type [B] using functor map(T->B)
+ * @receiver [Option] Option<A>
+ * @param [f]  function A -> B
+ * @return [Option] Option<B>
+ */
+inline infix fun <reified A : Any, reified B : Any> Option<A>.map(f: (A) -> B): Option<B> =
         when (this) {
             is Option.None -> Option.None
             is Option.Some -> Option.Some(f(this.value))
         }
 
-// f: (T,B) -> C
-inline fun <T : Any, B : Any, C : Any> Option<T>.map(second: Option<B>, f: (T, B) -> C): Option<C> =
-        when (second) {
+/**
+ * Combines two options of types [A] and [B] into an option of type [C]
+ * @receiver [Option] Option<A>
+ * @param [that] [Option] Option<B>
+ * @param [f]  function A,B -> C
+ * @return [Option] Option<C>
+ */
+inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.map(that: Option<B>, f: (A, B) -> C): Option<C> =
+        when (that) {
             is Option.None -> Option.None
-            is Option.Some -> this map { f(it, second.value) }
+            is Option.Some -> this map { f(it, that.value) }
         }
 
-// f: (T) -> Option<B>
-inline infix fun <T : Any, B : Any> Option<T>.mapToOption(f: (T) -> Option<B>): Option<B> =
+/**
+ * Applies function to the value of type [A] of the receiver option which returns an option of type [B]
+ * @receiver [Option] Option<A>
+ * @param [f] function A -> Option<B>
+ * @return [Option] Option<C>
+ */
+inline infix fun <reified A : Any, reified B : Any> Option<A>.mapToOption(f: (A) -> Option<B>): Option<B> =
         when (this) {
             is Option.None -> Option.None
             is Option.Some -> f(this.value)
         }
 
-// f: (T,B) -> Option<C>
-inline fun <T : Any, B : Any, C : Any> Option<T>.mapToOption(second: Option<B>, f: (T, B) -> Option<C>): Option<C> =
+/**
+ * Applies function to the values of option [this] and [that] which returns an option
+ * @receiver [Option] Option<A>
+ * @param [that] Option<B>
+ * @param [f] function A,B -< Option<C>
+ * @return [Option] Option<C>
+ */
+inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.mapToOption(that: Option<B>, f: (A, B) -> Option<C>): Option<C> =
         when (this) {
             is Option.None -> Option.None
-            is Option.Some -> when (second) {
+            is Option.Some -> when (that) {
                 is Option.None -> Option.None
-                is Option.Some -> f(this.value, second.value)
+                is Option.Some -> f(this.value, that.value)
             }
         }

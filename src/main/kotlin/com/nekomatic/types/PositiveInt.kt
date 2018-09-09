@@ -23,30 +23,67 @@
  */
 
 
+@file:Suppress("unused")
+
 package com.nekomatic.types
 
 /**
- * Positive integer
+ * [PositiveInt] wraps an immutable [Int] value which is guaranteed to be positive
  */
 open class PositiveInt private constructor(val value: Int) {
 
     companion object {
-        @Suppress("MemberVisibilityCanBePrivate")
-                /**
-         * Creates instance of PositiveInt option from given [int]
-         * @return Option.Some<PositiveInt> if inpit is positive, overwise Option.None
+        /**
+         * Creates instance of PositiveInt option from given [Int]
+         * @param [value] input value of type [Int]
+         * @return [Option.Some] Option.Some<PositiveInt> if input is positive, otherwise [Option.None]
          */
-        fun create(int: Int): Option<PositiveInt> = when {
-            int > 0 -> Option.Some(PositiveInt(int))
+        @JvmStatic
+        fun create(value: Int): Option<PositiveInt> = when {
+            value > 0 -> Option.Some(PositiveInt(value))
             else -> Option.None
         }
 
+        /**
+         * Creates instance of PositiveInt option from given [Short]
+         * @param [value] input value of type [Short]
+         * @return [Option.Some] Option.Some<PositiveInt> if input is positive, otherwise [Option.None]
+         */
+        @JvmStatic
         fun create(value: Short) = create(value.toInt())
+
+        /**
+         * Creates instance of PositiveInt option from given [Byte]
+         * @param [value] input value of type [Byte]
+         * @return [Option.Some] Option.Some<PositiveInt> if input is positive, otherwise [Option.None]
+         */
+        @JvmStatic
         fun create(value: Byte) = create(value.toInt())
+
+        /**
+         * predefined instance of [PositiveInt] with value of 1
+         */
+        @JvmField
         val ONE: PositiveInt = PositiveInt(1)
+        /**
+         * predefined instance of [PositiveInt] with value of 2
+         */
+        @JvmField
         val TWO: PositiveInt = PositiveInt(2)
+        /**
+         * predefined instance of [PositiveInt] with value of 3
+         */
+        @JvmField
         val THREE: PositiveInt = PositiveInt(3)
+        /**
+         * predefined instance of [PositiveInt] with value of 4
+         */
+        @JvmField
         val FOUR: PositiveInt = PositiveInt(4)
+        /**
+         * predefined instance of [PositiveInt] with value of 5
+         */
+        @JvmField
         val FIVE: PositiveInt = PositiveInt(5)
     }
 }

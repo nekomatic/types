@@ -22,23 +22,43 @@
  * SOFTWARE.
  */
 
+
+@file:Suppress("unused")
+
 package com.nekomatic.types
 
 
 import java.math.BigInteger
 
 
-open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rational> {
+open class Rational(numerator: BigInteger, denominator: PositiveBigInt) : Comparable<Rational> {
     constructor(r: Rational) : this(r.numerator, r.denominatorPbi)
     constructor(r: BigInteger) : this(r, PositiveBigInt.ONE)
     constructor(r: Int) : this(r.toBigInteger())
 
     companion object {
+        /**
+         * predefined instance of [Rational] with value of 0
+         */
+        @JvmField
         val ZERO = Rational(BigInteger.ZERO)
+        /**
+         * predefined instance of [Rational] with value of 1
+         */
+        @JvmField
         val ONE = Rational(BigInteger.ONE)
+
+        @JvmStatic
+        fun create(numerator: BigInteger, denominator: BigInteger) {
+            val denominatorOption = PositiveBigInt.create(denominator)
+            when (denominatorOption) {
+                is Option.Some -> Option.Some(Rational(numerator, denominatorOption.value))
+                is Option.None -> Option.None
+            }
+        }
     }
 
-    private val gcd: BigInteger = getGcd(num, denom.value)
+    private val gcd: BigInteger = getGcd(numerator, denominator.value)
 
     private tailrec fun getGcd(a: BigInteger, b: BigInteger): BigInteger {
         return if (b == BigInteger.ZERO)
@@ -47,55 +67,81 @@ open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rationa
             getGcd(b, a % b)
     }
 
-    class PositiveBigInt(private val v: BigInteger) {
-        companion object {
-            val ONE = PositiveBigInt(BigInteger.ONE)
-            val P10 = PositiveBigInt(BigInteger.TEN)
-            val P12 = PositiveBigInt(12.toBigInteger())
-            val P15 = PositiveBigInt(15.toBigInteger())
-            val P24 = PositiveBigInt(24.toBigInteger())
-            val P25 = PositiveBigInt(25.toBigInteger())
-            val P30 = PositiveBigInt(30.toBigInteger())
-            val P100 = PositiveBigInt(100.toBigInteger())
-            val P1000 = PositiveBigInt(1000.toBigInteger())
-            val P1001 = PositiveBigInt(1001.toBigInteger())
+    /**
+     * @return numerator of this [Rational] as [BigInteger]
+     */
+    @JvmField
+    val numerator = numerator / gcd
+    /**
+     * @return denominator of this [Rational] as [BigInteger]
+     */
+    @JvmField
+    val denominator = denominator.value / gcd
+    /**
+     * @return denominator of this [Rational] as [PositiveBigInt]
+     */
+    @JvmField
+    val denominatorPbi = PositiveBigInt(this.denominator)
 
-            fun create(bigint: BigInteger): Option<PositiveBigInt> =
-                    when (bigint.signum()) {
-                        1 -> Option.Some(PositiveBigInt(bigint))
-                        else -> Option.None
-                    }
-        }
-
-        val value: BigInteger
-            get() = v
-
-        operator fun times(second: PositiveBigInt): PositiveBigInt = PositiveBigInt(this.value * second.value)
-        operator fun plus(second: PositiveBigInt): PositiveBigInt = PositiveBigInt(this.value + second.value)
-    }
-
-
-    val numerator = num / gcd
-    val denominator = denom.value / gcd
-    val denominatorPbi = Rational.PositiveBigInt(denominator)
-
-    @Suppress("MemberVisibilityCanBePrivate")
+    /**
+     * @return -1, 0 or 1 as the value of this [Rational] is negative, zero or positive
+     */
     fun signum() = numerator.signum()
 
+    /**
+     * @return negative value of this [Rational]
+     */
     fun negate() = Rational(numerator.negate(), denominatorPbi)
+
+    /**
+     * @return discrete value of this [Rational] as [BigInteger]
+     */
     fun bigIntPart(): BigInteger = if (numerator == BigInteger.ZERO) BigInteger.ZERO else numerator / denominator
 
+    /**
+     * @return [Option.Some] of the inversed value of this [Rational] if this is not zero, otherwise returns [Option.None]
+     */
     fun inverse(): Option<Rational> {
         return when (numerator.signum()) {
-            1 -> Option.Some(Rational(denominator, Rational.PositiveBigInt(numerator)))
-            -1 -> Option.Some(Rational(denominator.negate(), Rational.PositiveBigInt(numerator.negate())))
+            1 -> Option.Some(Rational(denominator, PositiveBigInt(numerator)))
+            -1 -> Option.Some(Rational(denominator.negate(), PositiveBigInt(numerator.negate())))
             else -> Option.None
         }
     }
 
+    /**
+     * Operator [plus] sums two instances of [Rational]
+     * @param [other] [Rational]
+     * @return [Rational]
+     */
+    operator fun plus(other: Rational): Rational {
+        val num = this.numerator * other.denominator + other.numerator * this.denominator
+        val dem = this.denominatorPbi * other.denominatorPbi
+        return Rational(num, dem)
+    }
+
+    /**
+     * Operator [minus] substracts an instance of [Rational] from this [Rational]
+     * @param [other] [Rational]
+     * @return [Rational]
+     */
+    operator fun minus(other: Rational): Rational = this + other.negate()
+
+    /**
+     * Operator [times] multiplies two instances of [Rational]
+     * @param [other] [Rational]
+     * @return [Rational]
+     */
+    operator fun times(other: Rational): Rational {
+        return Rational(
+                this.numerator * other.numerator,
+                this.denominatorPbi * other.denominatorPbi
+        )
+    }
+
     override fun equals(other: Any?): Boolean =
             when (other) {
-                is Rational -> this.numerator == other.denominator && this.denominator == other.denominator
+                is Rational -> this.numerator == other.numerator && this.denominator == other.denominator
                 else -> false
             }
 
@@ -116,6 +162,10 @@ open class Rational(num: BigInteger, denom: PositiveBigInt) : Comparable<Rationa
 
     override fun hashCode(): Int {
         return 31 * numerator.hashCode() + denominator.hashCode()
+    }
+
+    override fun toString(): String {
+        return "Rational(numerator=$numerator, denominator=$denominator)"
     }
 }
 

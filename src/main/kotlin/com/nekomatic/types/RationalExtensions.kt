@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+
+@file:kotlin.jvm.JvmName("RationalExtensions")
+
 package com.nekomatic.types
 
 
@@ -29,58 +32,57 @@ import java.math.BigInteger
 
 typealias ROption = Option<Rational>
 
-// r + r -> r
-operator fun Rational.plus(other: Rational): Rational {
-    val dem = this.denominatorPbi * other.denominatorPbi
-    val num = this.numerator * other.denominator + other.numerator * this.denominator
-    return Rational(num, dem)
-}
 // r + option -> option
 operator fun Rational.plus(other: ROption): ROption = other map { this + it }
+
+
 // option + r -> option
 operator fun ROption.plus(other: Rational): ROption = this map { it + other }
+
 // option + option -> option
 operator fun ROption.plus(other: ROption): ROption = this.map(other) { a, b -> a + b }
 
 
-// r - r -> r
-operator fun Rational.minus(other: Rational): Rational = this + other.negate()
 // r - option -> option
 operator fun Rational.minus(other: ROption): ROption = other map { this - it }
+
 // option - r -> option
 operator fun ROption.minus(other: Rational): ROption = this map { it - other }
+
 // option - option -> option
 operator fun ROption.minus(other: ROption): ROption = this.map(other) { a, b -> a - b }
 
-// r * r -> r
-operator fun Rational.times(other: Rational): Rational {
-    return Rational(
-            this.numerator * other.numerator,
-            this.denominatorPbi * other.denominatorPbi
-    )
-}
 
 // r * option -> option
 operator fun Rational.times(other: ROption): ROption = other map { this * it }
+
 // option * r -> option
 operator fun ROption.times(other: Rational): ROption = this map { it * other }
+
 // option * option -> option
 operator fun ROption.times(other: ROption): ROption = this.map(other) { a, b -> a * b }
+
 // r * bigint -> r
 operator fun Rational.times(factor: BigInteger): Rational = Rational(this.numerator * factor)
+
 // r * int -> r
 operator fun Rational.times(factor: Int): Rational = Rational(this.numerator * factor.toBigInteger())
 
 // r / r -> option
 operator fun Rational.div(other: Rational): ROption = this * other.inverse()
+
 // option / r -> option
-operator fun ROption.div(other: Rational): ROption = this mapToOption  { it / other }
+operator fun ROption.div(other: Rational): ROption = this mapToOption { it / other }
+
 // r / option -> option
-operator fun Rational.div(other: ROption): ROption = other mapToOption  { this / it }
+operator fun Rational.div(other: ROption): ROption = other mapToOption { this / it }
+
 // option / option -> option
 operator fun ROption.div(other: ROption): ROption = this.mapToOption(other) { a, b -> a / b }
+
 // r / bigint -> option
 operator fun Rational.div(other: BigInteger): ROption = this * Rational(other).inverse()
+
 // r / int -> option
 operator fun Rational.div(other: Int): ROption = this * Rational(other).inverse()
 
