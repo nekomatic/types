@@ -58,7 +58,7 @@ open class Rational(numerator: BigInteger, denominator: PositiveBigInt) : Compar
         }
     }
 
-    private val gcd: BigInteger = getGcd(numerator, denominator.value)
+    private val gcd: BigInteger = getGcd(numerator.abs(), denominator.value)
 
     private tailrec fun getGcd(a: BigInteger, b: BigInteger): BigInteger {
         return if (b == BigInteger.ZERO)
