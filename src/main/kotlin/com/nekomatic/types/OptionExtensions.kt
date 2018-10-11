@@ -29,7 +29,7 @@ inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.map(tha
         }
 
 /**
- * Applies function to the value of type [A] of the receiver option which returns an option of type [B]
+ * Applies function to the data of type [A] of the receiver option which returns an option of type [B]
  * @receiver [Option] Option<A>
  * @param [f] function A -> Option<B>
  * @return [Option] Option<C>
