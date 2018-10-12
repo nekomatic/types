@@ -165,7 +165,7 @@ open class Rational(numerator: BigInteger, denominator: PositiveBigInt) : Compar
     }
 
     override fun toString(): String {
-        return "Rational(numerator=$numerator, denominator=$denominator)"
+        return "Rational( numerator=$numerator, denominator=$denominator )"
     }
 }
 
