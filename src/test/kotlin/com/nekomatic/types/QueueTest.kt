@@ -1,124 +1,214 @@
 package com.nekomatic.types
 
 import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertAll
 
 
-
+@Suppress("PrivatePropertyName")
 internal class QueueTest {
-//TODO: prepare Queues in various internal stack configurations and recreate tests based on these
+    private fun <A : Any, B : Any, C : Any> Pair<A, B>.map(f1: (A, B) -> C): C =
+            f1(this.first, this.second)
 
-    /*
-    * in, out
-    * 0 , 0
-    * 1 , 0
-    * 0 , 1
-    * 1 , 1
-    * 1 , 2
-    * 2 , 1
-    * 2 , 2
-    * */
+    private data class DequeueAssertData<A : Any>(val value: Option<A>, val size: Int, val items: List<A>)
 
-    val queue = Queue<String>("0")
-            .enqueue("A")
-            .enqueue("B")
-            .enqueue("C")
-            .enqueue("D")
-            .enqueue("E")
-    val emptyQueue = Queue<String>()
+    private fun <A : Option<C>, B : IQueue<C>, C : Any> Pair<A, B>.toDequeueAssertData() =
+            this.map { value: A, q: B ->
+                DequeueAssertData(value, q.size, q.items)
+            }
 
 
+    private val q00_s0: Queue<String> = Queue<String>()
+    private val q10_s1: Queue<String> = q00_s0.enqueue("1") as Queue<String>
+    private val q01_s1: Queue<String> = q10_s1.enqueue("2").dequeue().second as Queue<String>
+    private val q11_s2 = q01_s1.enqueue("3") as Queue<String>
+    private val q21_s3 = q11_s2.enqueue("4") as Queue<String>
+    private val q12_s3 = q10_s1.enqueue("5").enqueue("6").dequeue().second.enqueue("7") as Queue<String>
+    private val q22_s4 = q12_s3.enqueue("8") as Queue<String>
+    private val exhausted = q01_s1.dequeue().second as Queue<String>
+    private val equalTo_q10_s1 = q10_s1.enqueue("1").dequeue().second as Queue<String>
+    private val equalTo_q22_s4 = q00_s0.enqueueLeft(listOf("5", "6", "7", "8")) as Queue<String>
+    private val list = listOf("X", "Y", "Z")
+
+    @DisplayName("Assert internal stack's sizes")
     @Test
-    fun getSize() {
-        val (_, q1) = queue.dequeue()
-        val q2 = queue.enqueue("F")
+    fun stackSizes() {
         assertAll(
-                { assertEquals(6, queue.size) },
-                { assertEquals(5, q1.size) },
-                { assertEquals(7, q2.size) },
-                { assertEquals(0, emptyQueue.size) }
+                { assertEquals(0, q00_s0.inStack.size) },
+                { assertEquals(0, q00_s0.outStack.size) },
+                { assertEquals(1, q10_s1.inStack.size) },
+                { assertEquals(0, q10_s1.outStack.size) },
+                { assertEquals(0, q01_s1.inStack.size) },
+                { assertEquals(1, q01_s1.outStack.size) },
+                { assertEquals(1, q11_s2.inStack.size) },
+                { assertEquals(1, q11_s2.outStack.size) },
+                { assertEquals(2, q21_s3.inStack.size) },
+                { assertEquals(1, q21_s3.outStack.size) },
+                { assertEquals(1, q12_s3.inStack.size) },
+                { assertEquals(2, q12_s3.outStack.size) },
+                { assertEquals(2, q22_s4.inStack.size) },
+                { assertEquals(2, q22_s4.outStack.size) },
+                { assertEquals(0, exhausted.inStack.size) },
+                { assertEquals(0, exhausted.outStack.size) },
+                { assertEquals(0, equalTo_q10_s1.inStack.size) },
+                { assertEquals(1, equalTo_q10_s1.outStack.size) },
+                { assertEquals(4, equalTo_q22_s4.inStack.size) },
+                { assertEquals(0, equalTo_q22_s4.outStack.size) }
+
         )
     }
 
+    @DisplayName("Queue.items")
+    @Test
+    fun items() {
+        assertAll(
+                { assertEquals(listOf<String>(), q00_s0.items) },
+                { assertEquals(listOf("1"), q10_s1.items) },
+                { assertEquals(listOf("2"), q01_s1.items) },
+                { assertEquals(listOf("2", "3"), q11_s2.items) },
+                { assertEquals(listOf("2", "3", "4"), q21_s3.items) },
+                { assertEquals(listOf("5", "6", "7"), q12_s3.items) },
+                { assertEquals(listOf("5", "6", "7", "8"), q22_s4.items) },
+                { assertEquals(listOf<String>(), exhausted.items) }
+        )
+    }
+
+    @DisplayName("Queue.size")
+    @Test
+    fun size() {
+        assertAll(
+                { assertEquals(0, q00_s0.size) },
+                { assertEquals(1, q10_s1.size) },
+                { assertEquals(1, q01_s1.size) },
+                { assertEquals(2, q11_s2.size) },
+                { assertEquals(3, q21_s3.size) },
+                { assertEquals(3, q12_s3.size) },
+                { assertEquals(4, q22_s4.size) },
+                { assertEquals(0, exhausted.size) }
+        )
+    }
+
+    @DisplayName("Queue.enqueue( item :T )")
     @Test
     fun enqueue() {
-        val newQueue = queue.enqueue("F")
-
-        val elements =
-                generateSequence(newQueue.dequeue()) { (_, q) -> q.dequeue() }
-                        .takeWhile { (e, _) -> e is Option.Some }
-                        .map { (e: Option<String>, _) -> (e as Option.Some).value }.toList()
         assertAll(
-                { assertEquals(7, newQueue.size) },
-                { assertEquals(listOf("0", "A", "B", "C", "D", "E", "F"), elements) }
-        )
-    }
-
-    @Test
-    fun enqueueLeft() {
-        val newQueue = queue.enqueueLeft(listOf("F", "G", "H"))
-
-        val elements =
-                generateSequence(newQueue.dequeue()) { (_, q) -> q.dequeue() }
-                        .takeWhile { (e, _) -> e is Option.Some }
-                        .map { (e: Option<String>, _) -> (e as Option.Some).value }.toList()
-        assertAll(
-                { assertEquals(9, newQueue.size) },
-                { assertEquals(listOf("0", "A", "B", "C", "D", "E", "F", "G", "H"), elements) }
-        )
-    }
-
-    @Test
-    fun enqueueRight() {
-        val newQueue = queue.enqueueRight(listOf("F", "G", "H"))
-
-        val elements =
-                generateSequence(newQueue.dequeue()) { (_, q) -> q.dequeue() }
-                        .takeWhile { (e, _) -> e is Option.Some }
-                        .map { (e: Option<String>, _) -> (e as Option.Some).value }.toList()
-        assertAll(
-                { assertEquals(9, newQueue.size) },
-                { assertEquals(listOf("0", "A", "B", "C", "D", "E", "H", "G", "F"), elements) }
+                { assertEquals(listOf("A"), q00_s0.enqueue("A").items) },
+                { assertEquals(listOf("1", "A"), q10_s1.enqueue("A").items) },
+                { assertEquals(listOf("2", "A"), q01_s1.enqueue("A").items) },
+                { assertEquals(listOf("2", "3", "A"), q11_s2.enqueue("A").items) },
+                { assertEquals(listOf("2", "3", "4", "A"), q21_s3.enqueue("A").items) },
+                { assertEquals(listOf("5", "6", "7", "A"), q12_s3.enqueue("A").items) },
+                { assertEquals(listOf("5", "6", "7", "8", "A"), q22_s4.enqueue("A").items) },
+                { assertEquals(listOf("A"), exhausted.enqueue("A").items) }
         )
     }
 
 
+    @DisplayName("Queue.dequeue()")
     @Test
     fun dequeue() {
-        val (dequeuedValue, newQueue) = queue.dequeue()
-
-        val elements =
-                generateSequence(newQueue.dequeue()) { (_, q) -> q.dequeue() }
-                        .takeWhile { (e, _) -> e is Option.Some }
-                        .map { (e: Option<String>, _) -> (e as Option.Some).value }.toList()
         assertAll(
-                { assertEquals(5, newQueue.size) },
-                { assertEquals(listOf("A", "B", "C", "D", "E"), elements) },
-                { assertEquals(Option.Some("0"), dequeuedValue) }
+                { assertEquals(DequeueAssertData(Option.None, 0, listOf<String>()), q00_s0.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.Some("1"), 0, listOf()), q10_s1.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.Some("2"), 0, listOf()), q01_s1.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.Some("2"), 1, listOf("3")), q11_s2.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.Some("2"), 2, listOf("3", "4")), q21_s3.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.Some("5"), 2, listOf("6", "7")), q12_s3.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.Some("5"), 3, listOf("6", "7", "8")), q22_s4.dequeue().toDequeueAssertData()) },
+                { assertEquals(DequeueAssertData(Option.None, 0, listOf<String>()), exhausted.dequeue().toDequeueAssertData()) }
         )
     }
 
+    @DisplayName("Queue.peekIn()")
     @Test
-    fun peekFirst() {
-
-        val oneElQ = emptyQueue.enqueue("X")
-        val twoElQ = Queue("X").enqueue("Y")
-        val (_, reducedOneElQ) = oneElQ.dequeue()
-        val (_, reducedTwoElQ) = twoElQ.dequeue()
-        val (_, reducedMoreTwoElQ) = reducedTwoElQ.dequeue()
-        val restoredTwoElQ = reducedTwoElQ.enqueue("Z")
+    fun peekIn() {
 
         assertAll(
-                { assertEquals(Option.Some("E"), queue.peekIn()) },
-                { assertEquals(Option.None, emptyQueue.peekIn()) },
-                { assertEquals(Option.Some("X"), oneElQ.peekIn()) },
-                { assertEquals(Option.Some("Y"), twoElQ.peekIn()) },
-                { assertEquals(Option.None, reducedOneElQ.peekIn()) },
-                { assertEquals(Option.Some("Y"), reducedTwoElQ.peekIn()) },
-                { assertEquals(Option.None, reducedMoreTwoElQ.peekIn()) },
-                { assertEquals(Option.Some("Z"), restoredTwoElQ.peekIn()) }
+                { assertEquals(Option.None, q00_s0.peekIn()) },
+                { assertEquals(Option.Some("1"), q10_s1.peekIn()) },
+                { assertEquals(Option.Some("2"), q01_s1.peekIn()) },
+                { assertEquals(Option.Some("3"), q11_s2.peekIn()) },
+                { assertEquals(Option.Some("4"), q21_s3.peekIn()) },
+                { assertEquals(Option.Some("7"), q12_s3.peekIn()) },
+                { assertEquals(Option.Some("8"), q22_s4.peekIn()) },
+                { assertEquals(Option.None, exhausted.peekIn()) }
         )
     }
+
+    @DisplayName("Queue.peekOut()")
+    @Test
+    fun peekOut() {
+
+        assertAll(
+                { assertEquals(Option.None, q00_s0.peekOut()) },
+                { assertEquals(Option.Some("1"), q10_s1.peekOut()) },
+                { assertEquals(Option.Some("2"), q01_s1.peekOut()) },
+                { assertEquals(Option.Some("2"), q11_s2.peekOut()) },
+                { assertEquals(Option.Some("2"), q21_s3.peekOut()) },
+                { assertEquals(Option.Some("5"), q12_s3.peekOut()) },
+                { assertEquals(Option.Some("5"), q22_s4.peekOut()) },
+                { assertEquals(Option.None, exhausted.peekOut()) }
+        )
+    }
+
+
+    @DisplayName("Queue.enqueueLeft( list : List<T> )")
+    @Test
+    fun enqueueLeft() {
+        assertAll(
+                { assertEquals(listOf("X", "Y", "Z"), q00_s0.enqueueLeft(list).items) },
+                { assertEquals(listOf("1", "X", "Y", "Z"), q10_s1.enqueueLeft(list).items) },
+                { assertEquals(listOf("2", "X", "Y", "Z"), q01_s1.enqueueLeft(list).items) },
+                { assertEquals(listOf("2", "3", "X", "Y", "Z"), q11_s2.enqueueLeft(list).items) },
+                { assertEquals(listOf("2", "3", "4", "X", "Y", "Z"), q21_s3.enqueueLeft(list).items) },
+                { assertEquals(listOf("5", "6", "7", "X", "Y", "Z"), q12_s3.enqueueLeft(list).items) },
+                { assertEquals(listOf("5", "6", "7", "8", "X", "Y", "Z"), q22_s4.enqueueLeft(list).items) },
+                { assertEquals(listOf("X", "Y", "Z"), exhausted.enqueueLeft(list).items) }
+        )
+    }
+
+    //private val list = listOf("X", "Y", "Z")
+    @DisplayName("Queue.enqueueRight( list : List<T> )")
+    @Test
+    fun enqueueRight() {
+        assertAll(
+                { assertEquals(listOf("Z", "Y", "X"), q00_s0.enqueueRight(list).items) },
+                { assertEquals(listOf("1", "Z", "Y", "X"), q10_s1.enqueueRight(list).items) },
+                { assertEquals(listOf("2", "Z", "Y", "X"), q01_s1.enqueueRight(list).items) },
+                { assertEquals(listOf("2", "3", "Z", "Y", "X"), q11_s2.enqueueRight(list).items) },
+                { assertEquals(listOf("2", "3", "4", "Z", "Y", "X"), q21_s3.enqueueRight(list).items) },
+                { assertEquals(listOf("5", "6", "7", "Z", "Y", "X"), q12_s3.enqueueRight(list).items) },
+                { assertEquals(listOf("5", "6", "7", "8", "Z", "Y", "X"), q22_s4.enqueueRight(list).items) },
+                { assertEquals(listOf("Z", "Y", "X"), exhausted.enqueueRight(list).items) }
+        )
+    }
+
+    @DisplayName("Queue.toString()")
+    @Test
+    fun queueToString() {
+        assertAll(
+                { assertEquals("Queue()", q00_s0.toString()) },
+                { assertEquals("Queue( 1 )", q10_s1.toString()) },
+                { assertEquals("Queue( 2 )", q01_s1.toString()) },
+                { assertEquals("Queue( 2, 3 )", q11_s2.toString()) },
+                { assertEquals("Queue( 2, 3, 4 )", q21_s3.toString()) },
+                { assertEquals("Queue( 5, 6, 7 )", q12_s3.toString()) },
+                { assertEquals("Queue( 5, 6, 7, 8 )", q22_s4.toString()) },
+                { assertEquals("Queue()", exhausted.toString()) }
+        )
+    }
+
+    @DisplayName("Queue.equals( other : Any?)")
+    @Test
+    fun equals() {
+        assertAll(
+                { assertTrue(q00_s0 == exhausted) },
+                { assertTrue(q10_s1 == equalTo_q10_s1) },
+                { assertTrue(q22_s4 == equalTo_q22_s4) },
+                { assertFalse(q00_s0 == q10_s1) },
+                { assertFalse(q10_s1 == equalTo_q22_s4) }
+        )
+    }
+
 }

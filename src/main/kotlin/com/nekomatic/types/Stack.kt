@@ -4,7 +4,6 @@ package com.nekomatic.types
  * immutable Stack, also known as persistent or functional Stack
  */
 @Suppress("RemoveExplicitTypeArguments")
-//TODO: clean the tests up to cover all and only useful scenarios
 class Stack<T : Any> private constructor(
         private val head: Option<ListItem<T>>,
         private val count: Int) {
@@ -36,7 +35,7 @@ class Stack<T : Any> private constructor(
     val size = count
 
     /**
-     * returns new instance of Stack with the item as the top element
+     * returns new instance of Stack with the item at its top
      */
     fun push(item: T): Stack<T> {
         val i = ListItem(item, head)
@@ -44,20 +43,20 @@ class Stack<T : Any> private constructor(
     }
 
     /**
-     * returns new stack with all elements of th elist added on top of the current stack
-     * the elements of the list are added in order from the last to the first
+     * returns new stack with all elements of the list added on top of the current stack
+     * the items of the list are added in order from the last to the first
      */
     fun pushRight(items: List<T>): Stack<T> = items.foldRight<T, Stack<T>>(this) { element: T, s: Stack<T> -> s.push(element) }
 
     /**
-     * returns new stack with all elements of th elist added on top of the current stack
-     * the elements of the list are added in order from the fist to the last
+     * returns new stack with all elements of the list added on top of the current stack
+     * the items of the list are added in order from the fist to the last
      */
     fun pushLeft(items: List<T>): Stack<T> = items.fold<T, Stack<T>>(this) { s: Stack<T>, element: T -> s.push(element) }
 
     /**
-     * returns option of the top element from the stack and new stack with this element removed as a Pair
-     * if the stack has no elements the element returned is Option.None and the stack returned is the current instance
+     * returns option of the top item from the stack and new stack with this element removed as a Pair
+     * if the stack has no elements the item returned is Option.None and the stack returned is the current instance
      */
     fun pop(): Pair<Option<T>, Stack<T>> =
             when (head) {
@@ -72,7 +71,7 @@ class Stack<T : Any> private constructor(
             }
 
     /**
-     * returns the Option of the top element of the stack without changing the stack
+     * returns the Option of the top item of the stack without changing the stack
      */
     fun peek(): Option<T> = when (head) {
         Option.None -> Option.None
