@@ -2,6 +2,7 @@
 
 package com.nekomatic.types.graph
 
+import com.nekomatic.types.IQueue
 import com.nekomatic.types.Option
 import com.nekomatic.types.Queue
 import com.nekomatic.types.Stack
@@ -20,7 +21,7 @@ fun <V : Any> IGraph<V>.traversalDFS(start: V, f: (V) -> Unit) {
         val (vertex, s) = stk.pop()
         when (vertex) {
             is Option.Some -> {
-                val newStk = s.pushReversed(this.neighbours(vertex.value).filterNot { v -> visited.contains(v) })
+                val newStk = s.pushRight(this.neighbours(vertex.value).filterNot { v -> visited.contains(v) })
                 val newVisited = this.neighbours(vertex.value).toSet() + visited
                 Pair(newStk, newVisited)
             }
@@ -32,7 +33,7 @@ fun <V : Any> IGraph<V>.traversalDFS(start: V, f: (V) -> Unit) {
 
 
 fun <V : Any> IGraph<V>.traversalBFS(start: V, f: (V) -> Unit) {
-    generateSequence(Pair(Queue(start), setOf(start)))
+    generateSequence(Pair<IQueue<V>, Set<V>>(Queue(start), setOf(start)))
     { (queue, visited) ->
         val (vertex, q) = queue.dequeue()
         when (vertex) {
@@ -43,8 +44,8 @@ fun <V : Any> IGraph<V>.traversalBFS(start: V, f: (V) -> Unit) {
             }
             Option.None -> null
         }
-    }.takeWhile { (s, _) -> s.peek() is Option.Some }
-            .forEach { (s, _) -> f((s.peek() as Option.Some).value) }
+    }.takeWhile { (q: IQueue<V>, _) -> q.peekOut() is Option.Some }
+            .forEach { (q: IQueue<V>, _) -> f((q.peekOut() as Option.Some).value) }
 }
 
 

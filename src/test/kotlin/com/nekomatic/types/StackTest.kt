@@ -6,11 +6,23 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertAll
 
 internal class StackTest {
+//TODO: recreate all tests to use pregenerated stacks
+    val stackEmpty = Stack<String>()
+    val stackOneElConst = Stack("A")
+    val stackOneElGen = stackEmpty.push("A")
+    val stackTwoEl = stackOneElGen.push("B")
+    val stackOneElReduPair = stackTwoEl.pop()
+    val stackNonElReduPair = stackOneElReduPair.second.pop()
+    val stackTwoRev = stackTwoEl.reverse()
+    val stackTwoItems = stackTwoEl.items
+    val peekValue = stackTwoEl.peek()
+    val stackTwoPushL = stackEmpty.pushLeft(listOf("A", "B"))
+    val stackTwoPushR = stackEmpty.pushRight(listOf("A", "B"))
 
     @Test
     fun pushReversedList() {
         val stack = Stack<String>()
-                .pushReversed(listOf("C", "B", "A"))
+                .pushRight(listOf("C", "B", "A"))
 
         val elements = generateSequence(stack.pop()) { (_, s) -> s.pop() }
                 .takeWhile { (e, _) -> e is Option.Some }
@@ -58,7 +70,7 @@ internal class StackTest {
     @Test
     fun pushList() {
         val stack = Stack<String>()
-                .push(listOf("A", "B", "C"))
+                .pushLeft(listOf("A", "B", "C"))
 
         val elements = generateSequence(stack.pop()) { (_, s) -> s.pop() }
                 .takeWhile { (e, _) -> e is Option.Some }
@@ -128,6 +140,19 @@ internal class StackTest {
         assertAll(
                 { assertFalse(stack1.isEmpty) },
                 { assertTrue(stack2.isEmpty) }
+        )
+    }
+
+    @Test
+    fun stackToString() {
+        val stack1 = Stack<String>()
+                .push("A")
+                .push("B")
+                .push("C")
+        val stack2 = Stack<String>()
+        assertAll(
+                { assertEquals("Stack(C, B, A)", stack1.toString()) },
+                { assertEquals("Stack()", stack2.toString()) }
         )
     }
 }

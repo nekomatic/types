@@ -5,7 +5,21 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertAll
 
+
+
 internal class QueueTest {
+//TODO: prepare Queues in various internal stack configurations and recreate tests based on these
+
+    /*
+    * in, out
+    * 0 , 0
+    * 1 , 0
+    * 0 , 1
+    * 1 , 1
+    * 1 , 2
+    * 2 , 1
+    * 2 , 2
+    * */
 
     val queue = Queue<String>("0")
             .enqueue("A")
@@ -71,7 +85,6 @@ internal class QueueTest {
     }
 
 
-
     @Test
     fun dequeue() {
         val (dequeuedValue, newQueue) = queue.dequeue()
@@ -84,6 +97,28 @@ internal class QueueTest {
                 { assertEquals(5, newQueue.size) },
                 { assertEquals(listOf("A", "B", "C", "D", "E"), elements) },
                 { assertEquals(Option.Some("0"), dequeuedValue) }
+        )
+    }
+
+    @Test
+    fun peekFirst() {
+
+        val oneElQ = emptyQueue.enqueue("X")
+        val twoElQ = Queue("X").enqueue("Y")
+        val (_, reducedOneElQ) = oneElQ.dequeue()
+        val (_, reducedTwoElQ) = twoElQ.dequeue()
+        val (_, reducedMoreTwoElQ) = reducedTwoElQ.dequeue()
+        val restoredTwoElQ = reducedTwoElQ.enqueue("Z")
+
+        assertAll(
+                { assertEquals(Option.Some("E"), queue.peekIn()) },
+                { assertEquals(Option.None, emptyQueue.peekIn()) },
+                { assertEquals(Option.Some("X"), oneElQ.peekIn()) },
+                { assertEquals(Option.Some("Y"), twoElQ.peekIn()) },
+                { assertEquals(Option.None, reducedOneElQ.peekIn()) },
+                { assertEquals(Option.Some("Y"), reducedTwoElQ.peekIn()) },
+                { assertEquals(Option.None, reducedMoreTwoElQ.peekIn()) },
+                { assertEquals(Option.Some("Z"), restoredTwoElQ.peekIn()) }
         )
     }
 }

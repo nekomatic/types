@@ -1,29 +1,51 @@
 package com.nekomatic.types
 
-
-data class Stack<T : Any>(
+//TODO: clean the tests up to cover all and only useful scenarios
+class Stack<T : Any> private constructor(
         private val head: Option<Item<T>>,
-        private val items: Int) {
+        private val count: Int) {
 
 
     constructor() : this(Option.None, 0)
     constructor(element: T) : this(Item(element, Option.None))
-    constructor(q: Stack<T>) : this(q.head, q.size)
     private constructor(h: Item<T>) : this(Option.Some(h), 1)
 
-    data class Item<T>(val data: T, var next: Option<Item<T>>)
-
-    val size = items
-
-
-    fun push(element: T): Stack<T> {
-
-        val i = Item(element, head)
-        return Stack(head = Option.Some(i), items = size + 1)
+    val items: List<T> by lazy {
+        when (head) {
+            Option.None -> emptySequence<T>()
+            is Option.Some -> generateSequence(this.head) { i: Option.Some<Item<T>> ->
+                val n = i.value.next
+                when (n) {
+                    Option.None -> null
+                    is Option.Some -> n
+                }
+            }.map { it.value.data }
+        }.toList()
     }
 
-    fun pushReversed(elements: List<T>): Stack<T> = elements.foldRight<T, Stack<T>>(this) { element: T, s: Stack<T> -> s.push(element) }
-    fun push(elements: List<T>): Stack<T> = elements.fold<T, Stack<T>>(this) { s: Stack<T>, element: T -> s.push(element) }
+    private val stringValue by lazy {
+        when (head) {
+            Option.None -> "Stack()";
+            is Option.Some -> {
+                val s = items.joinToString(", ") { "$it" }
+                "Stack($s)"
+            }
+        }
+    }
+
+    private class Item<T>(val data: T, var next: Option<Item<T>>)
+
+
+    val size = count
+
+    fun push(element: T): Stack<T> {
+        val i = Item(element, head)
+        return Stack(head = Option.Some(i), count = size + 1)
+    }
+
+    fun pushRight(elements: List<T>): Stack<T> = elements.foldRight<T, Stack<T>>(this) { element: T, s: Stack<T> -> s.push(element) }
+
+    fun pushLeft(elements: List<T>): Stack<T> = elements.fold<T, Stack<T>>(this) { s: Stack<T>, element: T -> s.push(element) }
 
     fun pop(): Pair<Option<T>, Stack<T>> =
             when (head) {
@@ -42,9 +64,19 @@ data class Stack<T : Any>(
         is Option.Some -> Option.Some(head.value.data)
     }
 
-    fun reverse(): Stack<T> = generateSequence(this.pop()) { (_, s) -> s.pop() }
-            .takeWhile { (r, _) -> r is Option.Some }.fold(Stack<T>()) { acc: Stack<T>, b: Pair<Option<T>, Stack<T>> -> acc.push((b.first as Option.Some).value) }
+    fun reverse(): Stack<T> = Stack<T>().pushLeft(items)
 
     val isEmpty by lazy { head is Option.None }
+
+    override fun equals(other: Any?): Boolean = when (other) {
+        is Stack<*> -> this.items.equals(other.items)
+        else -> false
+    }
+
+    override fun toString(): String = stringValue
+
+    override fun hashCode(): Int {
+        return items.hashCode()
+    }
 }
 
