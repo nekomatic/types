@@ -7,7 +7,7 @@ import org.junit.jupiter.api.assertAll
 import java.math.BigInteger
 
 internal class RationalExtensionsTest {
-
+//TODO:complete Rational Tests
     private val first = Rational(BigInteger.TEN, PositiveBigInt.P100)
     private val second = Rational(2.toBigInteger(), PositiveBigInt.P1001)
     private val firstBySecond: Rational = ((first / second) as Option.Some).value
@@ -155,6 +155,90 @@ internal class RationalExtensionsTest {
                 { assertEquals(Option.None, Option.Some(zero) / Option.None) },
                 { assertEquals(Option.None, Option.None / Option.None) }
         )
+    }
+
+    @Test
+    fun plus() {
+    }
+
+    @Test
+    fun plus1() {
+    }
+
+    @Test
+    fun plus2() {
+    }
+
+    @Test
+    fun minus() {
+    }
+
+    @Test
+    fun minus1() {
+    }
+
+    @Test
+    fun minus2() {
+    }
+
+    @Test
+    fun times() {
+    }
+
+    @Test
+    fun times1() {
+    }
+
+    @Test
+    fun times2() {
+    }
+
+    @Test
+    fun times3() {
+    }
+
+    @Test
+    fun times4() {
+    }
+
+    @Test
+    fun times5() {
+    }
+
+    @Test
+    fun times6() {
+    }
+
+    @Test
+    fun div() {
+    }
+
+    @Test
+    fun div1() {
+    }
+
+    @Test
+    fun div2() {
+    }
+
+    @Test
+    fun div3() {
+    }
+
+    @Test
+    fun div4() {
+    }
+
+    @Test
+    fun div5() {
+    }
+
+    @Test
+    fun div6() {
+    }
+
+    @Test
+    fun div7() {
     }
 
 }
