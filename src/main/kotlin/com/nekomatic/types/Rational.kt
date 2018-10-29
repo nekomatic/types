@@ -38,12 +38,12 @@ open class Rational(numerator: BigInteger, denominator: PositiveBigInt) : Compar
 
     companion object {
         /**
-         * predefined instance of [Rational] with value of 0
+         * predefined instance of [Rational] with data of 0
          */
         @JvmField
         val ZERO = Rational(BigInteger.ZERO)
         /**
-         * predefined instance of [Rational] with value of 1
+         * predefined instance of [Rational] with data of 1
          */
         @JvmField
         val ONE = Rational(BigInteger.ONE)
@@ -84,22 +84,22 @@ open class Rational(numerator: BigInteger, denominator: PositiveBigInt) : Compar
     val denominatorPbi = PositiveBigInt(this.denominator)
 
     /**
-     * @return -1, 0 or 1 as the value of this [Rational] is negative, zero or positive
+     * @return -1, 0 or 1 as the data of this [Rational] is negative, zero or positive
      */
     fun signum() = numerator.signum()
 
     /**
-     * @return negative value of this [Rational]
+     * @return negative data of this [Rational]
      */
     fun negate() = Rational(numerator.negate(), denominatorPbi)
 
     /**
-     * @return discrete value of this [Rational] as [BigInteger]
+     * @return discrete data of this [Rational] as [BigInteger]
      */
     fun bigIntPart(): BigInteger = if (numerator == BigInteger.ZERO) BigInteger.ZERO else numerator / denominator
 
     /**
-     * @return [Option.Some] of the inversed value of this [Rational] if this is not zero, otherwise returns [Option.None]
+     * @return [Option.Some] of the inversed data of this [Rational] if this is not zero, otherwise returns [Option.None]
      */
     fun inverse(): Option<Rational> {
         return when (numerator.signum()) {
@@ -165,7 +165,7 @@ open class Rational(numerator: BigInteger, denominator: PositiveBigInt) : Compar
     }
 
     override fun toString(): String {
-        return "Rational(numerator=$numerator, denominator=$denominator)"
+        return "Rational( numerator=$numerator, denominator=$denominator )"
     }
 }
 
