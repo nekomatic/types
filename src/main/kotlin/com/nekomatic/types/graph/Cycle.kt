@@ -29,15 +29,6 @@ fun <V : Any> IGraph<V>.dfsCyclic(): Boolean {
                     }
                 }
             }
-
     val startNodes = this.vertices.filter { v -> this.edges.all { e -> e.second != v } }
-
-    val s = startNodes.map { n -> containsCycleDfs(n, this).isCyclic }
-
-    for (n in startNodes) {
-        val c = containsCycleDfs(n, this)
-        val b=c
-    }
-
     return startNodes.isEmpty() || startNodes.any { n -> containsCycleDfs(n, this).isCyclic }
 }
