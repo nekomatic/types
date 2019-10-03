@@ -9,10 +9,10 @@ package com.nekomatic.types
  * @return [Option] Option<B>
  */
 inline infix fun <reified A : Any, reified B : Any> Option<A>.map(f: (A) -> B): Option<B> =
-        when (this) {
-            is Option.None -> Option.None
-            is Option.Some -> Option.Some(f(this.value))
-        }
+    when (this) {
+        is Option.None -> Option.None
+        is Option.Some -> Option.Some(f(this.value))
+    }
 
 
 /**
@@ -22,11 +22,14 @@ inline infix fun <reified A : Any, reified B : Any> Option<A>.map(f: (A) -> B): 
  * @param [f]  function A,B -> C
  * @return [Option] Option<C>
  */
-inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.map(that: Option<B>, f: (A, B) -> C): Option<C> =
-        when (that) {
-            is Option.None -> Option.None
-            is Option.Some -> this map { f(it, that.value) }
-        }
+inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.map(
+    that: Option<B>,
+    f: (A, B) -> C
+): Option<C> =
+    when (that) {
+        is Option.None -> Option.None
+        is Option.Some -> this map { f(it, that.value) }
+    }
 
 /**
  * Applies function to the data of type [A] of the receiver option which returns an option of type [B]
@@ -35,10 +38,10 @@ inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.map(tha
  * @return [Option] Option<C>
  */
 inline infix fun <reified A : Any, reified B : Any> Option<A>.mapToOption(f: (A) -> Option<B>): Option<B> =
-        when (this) {
-            is Option.None -> Option.None
-            is Option.Some -> f(this.value)
-        }
+    when (this) {
+        is Option.None -> Option.None
+        is Option.Some -> f(this.value)
+    }
 
 
 /**
@@ -48,11 +51,17 @@ inline infix fun <reified A : Any, reified B : Any> Option<A>.mapToOption(f: (A)
  * @param [f] function A,B -< Option<C>
  * @return [Option] Option<C>
  */
-inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.mapToOption(that: Option<B>, f: (A, B) -> Option<C>): Option<C> =
-        when (this) {
+inline fun <reified A : Any, reified B : Any, reified C : Any> Option<A>.mapToOption(
+    that: Option<B>,
+    f: (A, B) -> Option<C>
+): Option<C> =
+    when (this) {
+        is Option.None -> Option.None
+        is Option.Some -> when (that) {
             is Option.None -> Option.None
-            is Option.Some -> when (that) {
-                is Option.None -> Option.None
-                is Option.Some -> f(this.value, that.value)
-            }
+            is Option.Some -> f(this.value, that.value)
         }
+    }
+
+fun <T : Any> T?.toOption() = if (this == null) Option.None else Option.Some(this)
+fun <T : Any> T.some() = Option.Some(this)

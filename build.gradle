@@ -1,21 +1,70 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.3.50'
+    id 'idea'
+    id 'maven-publish'
 }
 
 group 'com.nekomatic'
-version '1.0.6'
+version '1.0.7'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven {
+        url myMavenRepoReadUrl
+        credentials {
+            username 'myMavenRepo'
+            password myMavenRepoReadPassword
+        }
+    }
+}
+
+
+publishing {
+    repositories {
+        maven {
+            url myMavenRepoWriteUrl
+
+            credentials {
+                username myMavenRepoWriteUsername
+                password myMavenRepoWritePassword
+            }
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit"
-    testCompile "org.junit.jupiter:junit-jupiter-api:5.1.0"
+    testCompile "org.junit.jupiter:junit-jupiter-api:5.5.2"
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+}
+
+sourceSets{
+    main{
+        kotlin{
+            srcDirs += "src/main/java"
+            srcDirs += "src/main/kotlin"
+        }
+    }
+    test{
+        kotlin{
+            srcDirs += "src/test/java"
+            srcDirs += "src/test/kotlin"
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 compileKotlin {
